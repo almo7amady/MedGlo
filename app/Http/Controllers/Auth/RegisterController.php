@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use DB;
+use Session;
 use App\User;
+use App\Invite;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -24,7 +26,7 @@ class RegisterController extends Controller
     use RegistersUsers;
 
     /**
-     * Where to redirect users after registration.
+     * Where to redirect users after login / registration.
      *
      * @var string
      */
@@ -49,9 +51,9 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'name' => 'required|max:255|unique:users|no_spaces',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|min:6|confirmed',
         ]);
     }
 
@@ -59,14 +61,40 @@ class RegisterController extends Controller
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
-     * @return \App\User
+     * @return User
      */
-    protected function create(array $data)
+    protected function create (array $data)
     {
+        // explicity set user role, even though default is 'user'
+        $role = 'user';
+
+        // check user register code exists
+        if ($data['code'] !== '') {
+            // code is present and not empty, let's get the details of Invite from db
+            $invite = DB::table('invites')->where('code', '=', $data['code'])->first();
+
+            $register_using_code = false;
+
+            // let's make sure the code was linked to a valid instance of Invite.
+            if ($invite != null) {
+                // set the role as per the invite
+                $role = $invite->role;
+
+                // delete the invite
+                DB::table('invites')->where('email', '=', $invite->email)->delete();
+
+                $register_using_code = true;
+
+            }
+
+            Session::put('register_using_code', $register_using_code);
+        }
+
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'role' => $role,
+            'password' => bcrypt($data['password']),
         ]);
     }
 }
