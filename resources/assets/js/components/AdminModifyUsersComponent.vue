@@ -12,8 +12,8 @@
                         <div class="form-group col-md-6" v-bind:class="(modifyError.user) ? 'has-error' : ''">
                             <label for="user" class="control-label">Select user to modify</label>
                             <select v-model="modifyUser.id" id="user" class="form-control">
-                                <option v-bind:value="null" value="">Select a User</option>
-                                <option v-for="user in users" v-bind:value="user.id" value="">{{ user.id  }} - {{ user.name }} - {{ user.role }}</option>
+                                <option v-bind:value="null">Select a User</option>
+                                <option v-for="user in users" :key="user" v-bind:value="user.id">{{ user.id  }} - {{ user.name }} - {{ user.role }}</option>
                             </select>
                             <template v-if="modifyError.user">
                                 <div class="help-block danger">
@@ -24,8 +24,8 @@
                         <div class="form-group col-md-3" v-bind:class="(modifyError.role) ? 'has-error' : ''">
                             <label for="role" class="control-label">Select new role</label>
                             <select v-model="modifyUser.role" name="role" id="role" class="form-control">
-                                <option v-bind:value="null" value="">Select a Role</option>
-                                <option v-for="role in roles" value="" v-bind:value="role">{{ role }}</option>
+                                <option v-bind:value="null" >Select a Role</option>
+                                <option v-for="role in roles" :key="role" v-bind:value="role">{{ role }}</option>
                             </select>
                             <template v-if="modifyError.role">
                                 <div class="help-block danger">
@@ -53,7 +53,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(user, index) in users">
+                                <tr v-for="(user, index) in users" :key="user">
                                     <td>{{ user.id }}</td><td><a v-bind:href="'/user/profile/@' + user.name">{{ user.name }}</a></td> <td>{{ user.email }}</td> <td>{{ user.role }}</td> <td><a href="#" class="btn btn-danger btn-xs" @click.prevent="destroy(index, user.name)"><span class="glyphicon glyphicon-remove"></span> Delete</a></td>
                                 </tr>
                             </tbody>

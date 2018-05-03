@@ -107,6 +107,3 @@ Route::group(['middleware' => ['log.activity']], function() {
 
 });
 
-Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');

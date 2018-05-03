@@ -85,7 +85,7 @@ class PostsController extends Controller
         $post->body = $request->post;
         $post->save();
 
-        $mentioned_users = $this->getMentionedUsers($request);
+        $mentioned_users = GetMentionedUsers::handle($request->post);
 
         if (count($mentioned_users)) {
             event(new UsersMentioned($mentioned_users, $topic, $post));

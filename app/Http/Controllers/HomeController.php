@@ -1,9 +1,6 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
-
 class HomeController extends Controller
 {
     /**
@@ -15,14 +12,18 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
-
     /**
      * Show the application dashboard.
      *
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index (Request $request)
     {
-        return view('home');
+        $user = $request->user();
+        $topics = $user->topics()->orderBy('created_at', 'desc')->get();
+        return view('home', [
+            'topics' => $topics,
+        ]);
     }
 }
